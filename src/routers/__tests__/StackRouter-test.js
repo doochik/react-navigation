@@ -480,7 +480,39 @@ describe('StackRouter', () => {
     expect(state5).toEqual(state);
   });
 
+  test('Handle initial nested route navigation', () => {
+    const ChildNavigator = () => <div />;
+    ChildNavigator.router = TabRouter({
+      Tab1: { screen: () => <div /> },
+      Tab2: { screen: () => <div /> },
+    });
+
+    const router = StackRouter({
+      Foo: { screen: ChildNavigator },
+      Bar: { screen: () => <div /> },
+    });
+    const state = router.getStateForAction(
+      router.getActionForPathAndParams('Foo')
+    );
+
+    expect(state).toEqual({
+      index: 0,
+      routes: [
+        {
+          index: 0,
+          key: 'Init-id-0-0',
+          routeName: 'Foo',
+          routes: [
+            { key: 'Tab1', routeName: 'Tab1' },
+            { key: 'Tab2', routeName: 'Tab2' },
+          ],
+        },
+      ],
+    });
+  });
+
   test('Handle initial route navigation', () => {
+
     const FooScreen = () => <div />;
     const BarScreen = () => <div />;
     const router = StackRouter(

@@ -90,13 +90,22 @@ export default (
       passedAction: NavigationStackAction,
       state: ?NavigationState
     ) {
-      const action = NavigationActions.mapDeprecatedActionAndWarn(passedAction);
+      let action = NavigationActions.mapDeprecatedActionAndWarn(passedAction);
 
       // Set up the initial state if needed
       if (!state) {
+        const isRouteUnknown = childRouters[action.routeName] === undefined;
+        if (isRouteUnknown) {
+          action = Object.assign(
+            {},
+            { routeName: initialRouteName, params: initialRouteParams }
+          );
+        }
+
         let route = {};
         if (
           action.type === NavigationActions.NAVIGATE &&
+          // childRouters[action.routeName] === undefined
           childRouters[action.routeName] !== undefined
         ) {
           return {
@@ -136,6 +145,7 @@ export default (
           index: 0,
           routes: [route],
         };
+        return state;
       }
 
       // Check if a child scene wants to handle the action as long as it is not a reset to the root stack
